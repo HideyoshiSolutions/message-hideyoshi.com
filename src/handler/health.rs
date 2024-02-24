@@ -1,12 +1,9 @@
 use axum::{
-    extract::{Path, Query, State},
     http::StatusCode,
     response::IntoResponse,
     Json,
 };
-use uuid::Uuid;
-
-use crate::model::{GenericResponse};
+use crate::model::generic_response::{GenericResponse};
 
 pub async fn health_check() -> impl IntoResponse {
     const MESSAGE: &str = "Server is running";
