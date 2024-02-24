@@ -1,10 +1,9 @@
+use crate::handler::health::health_check;
+use crate::handler::message::send_message;
 use axum::{
     routing::{get, post},
-    Router
+    Router,
 };
-use crate::handler::health::{health_check};
-use crate::handler::message::{send_message};
-
 
 pub fn create_route() -> Router {
     Router::new()

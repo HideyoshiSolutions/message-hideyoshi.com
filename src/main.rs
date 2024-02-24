@@ -1,11 +1,7 @@
-mod route;
-mod model;
 mod handler;
-
-use axum::http::{
-    header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE},
-    HeaderValue, Method
-};
+mod interceptor;
+mod model;
+mod route;
 
 #[tokio::main]
 async fn main() {
