@@ -4,6 +4,7 @@ mod middleware;
 mod model;
 mod route;
 mod service;
+mod utils;
 
 use crate::config::config_server;
 

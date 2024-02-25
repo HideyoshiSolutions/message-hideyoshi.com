@@ -4,6 +4,7 @@ use crate::handler::message::send_message;
 use crate::middleware::auth_middleware::auth_middleware;
 use crate::service::auth_service::AuthService;
 use crate::service::email_service::EmailService;
+use crate::utils::router_builder::RouterBuilder;
 use axum::{
     middleware,
     routing::{get, post},
@@ -23,10 +24,8 @@ fn configure_health_endpoint(router: Router) -> Router {
 }
 
 pub fn create_route() -> Router {
-    let mut router = Router::new();
-
-    router = configure_message_endpoint(router);
-    router = configure_health_endpoint(router);
-
-    router
+    RouterBuilder::new()
+        .add_config(configure_message_endpoint)
+        .add_config(configure_health_endpoint)
+        .build()
 }
