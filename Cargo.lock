@@ -851,6 +851,7 @@ dependencies = [
  "dotenv",
  "headers",
  "http 1.0.0",
+ "log",
  "reqwest",
  "serde",
  "serde_json",

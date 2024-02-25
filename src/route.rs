@@ -1,12 +1,29 @@
 use crate::handler::health::health_check;
 use crate::handler::message::send_message;
-use axum::{routing::{get, post}, Router, middleware};
+use axum::{routing::{get, post}, Router, middleware, Extension};
+use crate::config::config_auth;
 use crate::middleware::auth_middleware::auth_middleware;
+use crate::service::auth_service::AuthService;
+use crate::service::email_service::EmailService;
+
+
+fn configure_message_endpoint(router: Router) -> Router {
+    router.route("/message", post(send_message))
+        .layer(middleware::from_fn(auth_middleware))
+        .layer(Extension(AuthService::new(config_auth::get_config_auth())))
+        .layer(Extension(EmailService::new()))
+}
+
+fn configure_health_endpoint(router: Router) -> Router {
+    router.route("/health", get(health_check))
+}
 
 
 pub fn create_route() -> Router {
-    Router::new()
-        .route("/message", post(send_message))
-        .layer(middleware::from_fn(auth_middleware))
-        .route("/health", get(health_check))
+    let mut router = Router::new();
+
+    router = configure_message_endpoint(router);
+    router = configure_health_endpoint(router);
+
+    router
 }
