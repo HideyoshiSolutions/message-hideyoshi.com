@@ -3,22 +3,22 @@ use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct MessageAuthor {
-    name: String,
-    username: String,
-    email: String,
+    pub name: String,
+    pub username: String,
+    pub email: String,
 }
 
 #[serde_as]
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct SendMessage {
-    author: Option<MessageAuthor>,
+    pub author: Option<MessageAuthor>,
 
-    subject: String,
+    pub subject: String,
 
-    message: String,
+    pub message: String,
 
     #[serde(deserialize_with = "from_ts")]
-    timestamp: NaiveDateTime,
+    pub timestamp: NaiveDateTime,
 }

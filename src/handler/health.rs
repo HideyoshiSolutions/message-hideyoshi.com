@@ -1,8 +1,7 @@
 use crate::model::generic_response::GenericResponse;
 use axum::{http::StatusCode, response::IntoResponse, Json};
-use proc_utils::guard_resource;
 
-#[guard_resource(ResourceType::OPEN)]
+
 pub async fn health_check() -> impl IntoResponse {
     const MESSAGE: &str = "Server is running";
     let response = GenericResponse {

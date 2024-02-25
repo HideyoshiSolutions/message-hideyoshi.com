@@ -1,5 +1,5 @@
 mod handler;
-mod interceptor;
+mod middleware;
 mod model;
 mod route;
 

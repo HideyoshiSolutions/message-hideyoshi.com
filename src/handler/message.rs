@@ -1,8 +1,13 @@
-use crate::model::send_message::SendMessage;
-use axum::{http::StatusCode, response::IntoResponse, Json};
-use proc_utils::guard_resource;
+use crate::model::send_message::{MessageAuthor, SendMessage};
+use axum::{http::StatusCode, response::IntoResponse, Json, Extension};
+use axum::extract::State;
 
-#[guard_resource(ResourceType::OPEN)]
-pub async fn send_message(Json(payload): Json<SendMessage>) -> impl IntoResponse {
-    (StatusCode::OK, Json(payload))
+
+pub async fn send_message(Extension(auther): Extension<MessageAuthor>, Json(payload): Json<SendMessage>) -> impl IntoResponse {
+    let mut response = payload.clone();
+
+    response.author = Some(auther).clone();
+    println!("Received message: {:?}", response);
+
+    (StatusCode::OK, Json(response))
 }
