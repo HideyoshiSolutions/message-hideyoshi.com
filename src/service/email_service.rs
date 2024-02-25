@@ -1,41 +1,65 @@
-use lettre::{
-    transport::smtp::authentication::Credentials, AsyncSmtpTransport, AsyncTransport, Message,
-    Tokio1Executor,
-};
 use crate::config::config_email::ConfigEmail;
-
+use crate::model::send_message::{MessageAuthor, SendMessage};
+use lettre::{transport::smtp::authentication::Credentials, AsyncSmtpTransport, AsyncTransport, Message, Tokio1Executor, Address};
+use lettre::message::Mailbox;
 
 #[derive(Clone)]
 pub struct EmailService {
-    mailer: AsyncSmtpTransport<Tokio1Executor>
+    name: String,
+    email: String,
+    mailer: AsyncSmtpTransport<Tokio1Executor>,
 }
 
 impl EmailService {
     pub fn new(config_email: ConfigEmail) -> Self {
         EmailService {
-            mailer: AsyncSmtpTransport::<Tokio1Executor>::relay(&config_email.smtp_server)
+            name: config_email.smtp_name.clone(),
+            email: config_email.smtp_email.clone(),
+            mailer: AsyncSmtpTransport::<Tokio1Executor>::starttls_relay(&config_email.smtp_server)
                 .unwrap()
-                .credentials(Credentials::new(config_email.smtp_username, config_email.smtp_password))
+                .credentials(Credentials::new(
+                    config_email.smtp_username,
+                    config_email.smtp_password,
+                ))
                 .port(config_email.smtp_port)
-                .build()
+                .build(),
         }
     }
 
-    async fn send_email_smtp(
-        &self,
-        from: &str,
-        to: &str,
-        subject: &str,
-        body: String,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn send_email_smtp(&self, m: SendMessage) -> Result<(), Box<dyn std::error::Error>> {
+        let sender = m.author.clone().unwrap();
+        let sender_mailbox = Mailbox::new(
+            Some(sender.name), sender.email.parse::<Address>().unwrap()
+        );
+
+        let recipient_mailbox = Mailbox::new(
+            Some(self.name.clone()), self.email.parse::<Address>().unwrap()
+        );
+
+        let body = self.create_email_body(&m);
+
         let email = Message::builder()
-            .from(from.parse()?)
-            .to(to.parse()?)
-            .subject(subject)
+            .from(sender_mailbox.clone())
+            .to(recipient_mailbox.clone())
+            .subject(m.subject)
             .body(body.to_string())?;
 
         self.mailer.send(email).await?;
 
         Ok(())
+    }
+
+    fn create_email_body(&self, m: &SendMessage) -> String {
+        let sender = m.author.clone().unwrap();
+
+        format!(
+            "From: {} <{}>\nTo: {} <{}>\nSubject: {}\n\n{}",
+            sender.name,
+            sender.email,
+            self.name,
+            self.email,
+            m.subject,
+            m.message
+        )
     }
 }
