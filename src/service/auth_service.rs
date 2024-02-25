@@ -1,7 +1,6 @@
-use reqwest::header::AUTHORIZATION;
 use crate::config::config_auth::ConfigAuth;
 use crate::model::send_message::MessageAuthor;
-
+use reqwest::header::AUTHORIZATION;
 
 #[derive(Clone)]
 pub struct AuthService {
@@ -21,9 +20,12 @@ impl AuthService {
         let validation_url = format!("{}/user/login/validate", self.auth_url);
 
         let client = reqwest::Client::new();
-        let response = client.post(validation_url.as_str())
+        let response = client
+            .post(validation_url.as_str())
             .header(AUTHORIZATION, format!("Bearer {}", token))
-            .send().await.unwrap();
+            .send()
+            .await
+            .unwrap();
 
         if response.status().is_success() {
             let text = response.text().await.unwrap();

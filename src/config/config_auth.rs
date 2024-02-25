@@ -1,5 +1,5 @@
-use std::env;
 use cached::proc_macro::cached;
+use std::env;
 
 #[derive(Clone)]
 pub struct ConfigAuth {
@@ -8,10 +8,7 @@ pub struct ConfigAuth {
 
 #[cached]
 pub fn get_config_auth() -> ConfigAuth {
-    let url = env::var("AUTH_URL")
-        .expect("AUTH_URL must be set");
+    let url = env::var("AUTH_URL").expect("AUTH_URL must be set");
 
-    ConfigAuth {
-        auth_url: url,
-    }
+    ConfigAuth { auth_url: url }
 }
