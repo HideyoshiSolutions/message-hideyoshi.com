@@ -5,9 +5,7 @@ use axum::extract::State;
 
 pub async fn send_message(Extension(auther): Extension<MessageAuthor>, Json(payload): Json<SendMessage>) -> impl IntoResponse {
     let mut response = payload.clone();
-
     response.author = Some(auther).clone();
-    println!("Received message: {:?}", response);
 
     (StatusCode::OK, Json(response))
 }

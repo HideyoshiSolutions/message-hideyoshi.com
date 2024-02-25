@@ -6,6 +6,7 @@ use axum::{
 };
 use reqwest::header::AUTHORIZATION;
 use crate::model::send_message::MessageAuthor;
+use crate::config::config_auth;
 
 pub async fn auth_middleware(mut request: Request, next: Next) -> Result<Response, StatusCode> {
     let token = get_token(&request).ok_or(StatusCode::UNAUTHORIZED)?;
@@ -30,8 +31,12 @@ fn get_token(req: &Request) -> Option<String> {
 async fn validate_token(token: &str) -> Option<MessageAuthor> {
     println!("Received token: {}", token);
 
+    let auth_config = config_auth::get_config_auth();
+
+    let validation_url = format!("{}/user/login/validate", auth_config.auth_url);
+
     let client = reqwest::Client::new();
-    let response = client.post("http://localhost:8070/user/login/validate")
+    let response = client.post(validation_url.as_str())
         .header(AUTHORIZATION, format!("Bearer {}", token))
         .send().await.unwrap();
 
