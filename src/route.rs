@@ -1,17 +1,17 @@
-use crate::config::{config_auth, config_email};
+
+use crate::depends::depends_auth_service::get_depends_auth_service;
+use crate::depends::depends_email_service::get_depends_email_service;
 use crate::handler::health::health_check;
 use crate::handler::message::send_message;
 use crate::middleware::auth_middleware::auth_middleware;
-use crate::service::auth_service::AuthService;
-use crate::service::email_service::EmailService;
+
+
 use crate::utils::router_builder::RouterBuilder;
 use axum::{
     middleware,
     routing::{get, post},
     Extension, Router,
 };
-use crate::depends::depends_auth_service::get_depends_auth_service;
-use crate::depends::depends_email_service::get_depends_email_service;
 
 fn configure_message_endpoint(router: Router) -> Router {
     router
