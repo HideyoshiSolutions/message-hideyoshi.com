@@ -1,22 +1,31 @@
 use cached::proc_macro::cached;
 
-
 #[derive(Clone)]
 pub struct ConfigServer {
-    pub(crate) host: String,
-    pub(crate) port: u16,
+    pub host: String,
+    pub port: u16,
+    pub allowed_origins: Option<Vec<String>>,
 }
 
 #[cached]
 pub fn get_config_server() -> ConfigServer {
     dotenv::dotenv().ok();
 
-    let h = option_env!("HOST").unwrap_or("localhost").to_string();
+    let host = option_env!("HOST").unwrap_or("localhost").to_string();
 
-    let p = option_env!("PORT")
+    let port = option_env!("PORT")
         .unwrap_or("8500")
         .parse::<u16>()
         .unwrap();
 
-    ConfigServer { host: h, port: p }
+    let allowed_origins = match option_env!("ALLOWED_ORIGINS") {
+        Some(origins) => Some(origins.split(",").map(|s| s.to_string()).collect()),
+        None => None,
+    };
+
+    ConfigServer {
+        host,
+        port,
+        allowed_origins,
+    }
 }
