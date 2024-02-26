@@ -8,6 +8,8 @@ pub struct ConfigAuth {
 
 #[cached]
 pub fn get_config_auth() -> ConfigAuth {
+    dotenv::dotenv().ok();
+
     let url = env::var("AUTH_URL").expect("AUTH_URL must be set");
 
     ConfigAuth { auth_url: url }

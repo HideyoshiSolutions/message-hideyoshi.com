@@ -13,6 +13,8 @@ pub struct ConfigEmail {
 
 #[cached]
 pub fn get_config_email() -> ConfigEmail {
+    dotenv::dotenv().ok();
+
     let server = env::var("SMTP_SERVER").expect("SMTP_SERVER must be set");
     let port = env::var("SMTP_PORT").expect("SMTP_PORT must be set");
     let username = env::var("SMTP_USERNAME").expect("SMTP_USERNAME must be set");

@@ -9,6 +9,8 @@ pub struct ConfigServer {
 
 #[cached]
 pub fn get_config_server() -> ConfigServer {
+    dotenv::dotenv().ok();
+
     let h = option_env!("HOST").unwrap_or("localhost").to_string();
 
     let p = option_env!("PORT")
