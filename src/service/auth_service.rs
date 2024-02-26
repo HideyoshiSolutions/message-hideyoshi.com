@@ -5,7 +5,6 @@ use crate::model::send_message::MessageAuthor;
 use redis::{AsyncCommands, ExistenceCheck, SetExpiry, SetOptions};
 use reqwest::header::AUTHORIZATION;
 
-
 #[derive(Clone)]
 pub struct AuthService {
     auth_url: String,

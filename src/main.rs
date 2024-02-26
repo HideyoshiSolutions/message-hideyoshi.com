@@ -13,7 +13,7 @@ use crate::config::config_server;
 async fn main() {
     let server_config = config_server::get_config_server();
 
-    let app = route::create_route();
+    let app = route::create_route(server_config.allowed_origins);
 
     println!("🚀 Server started successfully");
     let listener =

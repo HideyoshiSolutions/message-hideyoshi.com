@@ -1,5 +1,5 @@
 use crate::config::config_email::ConfigEmail;
-use crate::model::send_message::{SendMessage};
+use crate::model::send_message::SendMessage;
 use lettre::message::Mailbox;
 use lettre::{
     transport::smtp::authentication::Credentials, Address, AsyncSmtpTransport, AsyncTransport,

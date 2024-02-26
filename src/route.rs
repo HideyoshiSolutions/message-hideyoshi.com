@@ -1,10 +1,8 @@
-
 use crate::depends::depends_auth_service::get_depends_auth_service;
 use crate::depends::depends_email_service::get_depends_email_service;
 use crate::handler::health::health_check;
 use crate::handler::message::send_message;
 use crate::middleware::auth_middleware::auth_middleware;
-
 
 use crate::utils::router_builder::RouterBuilder;
 use axum::{
@@ -25,9 +23,10 @@ fn configure_health_endpoint(router: Router) -> Router {
     router.route("/health", get(health_check))
 }
 
-pub fn create_route() -> Router {
+pub fn create_route(allowed_origins: Option<Vec<String>>) -> Router {
     RouterBuilder::new()
         .add_config(configure_message_endpoint)
         .add_config(configure_health_endpoint)
+        .add_cors(allowed_origins)
         .build()
 }
