@@ -1,10 +1,10 @@
-use std::collections::BTreeMap;
-use redis::{AsyncCommands, ExistenceCheck, SetExpiry, SetOptions};
 use crate::config::config_auth::ConfigAuth;
-use crate::model::send_message::MessageAuthor;
-use reqwest::header::AUTHORIZATION;
 use crate::config::config_limits::ConfigLimits;
 use crate::config::config_redis::ConfigRedis;
+use crate::model::send_message::MessageAuthor;
+use redis::{AsyncCommands, ExistenceCheck, SetExpiry, SetOptions};
+use reqwest::header::AUTHORIZATION;
+
 
 #[derive(Clone)]
 pub struct AuthService {
@@ -17,8 +17,13 @@ pub struct AuthService {
 impl AuthService {
     pub fn new(config_auth: ConfigAuth, config_redis: ConfigRedis, limits: ConfigLimits) -> Self {
         let client = redis::Client::open(
-            format!("redis://{}:{}", config_redis.redis_url, config_redis.redis_port).as_str()
-        ).unwrap();
+            format!(
+                "redis://{}:{}",
+                config_redis.redis_url, config_redis.redis_port
+            )
+            .as_str(),
+        )
+        .unwrap();
 
         AuthService {
             auth_url: config_auth.auth_url,
@@ -56,7 +61,7 @@ impl AuthService {
 
     pub async fn increase_user_request(&self, user: &MessageAuthor) -> bool {
         let mut con = self.redis.get_async_connection().await.unwrap();
-        let current_request_key= format!(
+        let current_request_key = format!(
             "user-message:{}:requests:{}",
             user.email,
             chrono::Utc::now().timestamp()
@@ -67,12 +72,10 @@ impl AuthService {
             .conditional_set(ExistenceCheck::NX)
             .get(false);
 
-        return con.set_options(
-            &current_request_key,
-            1,
-            set_options
-        ).await.expect("Error setting key");
-
+        return con
+            .set_options(&current_request_key, 1, set_options)
+            .await
+            .expect("Error setting key");
     }
 
     async fn count_user_requests(&self, user: &MessageAuthor) -> u32 {
@@ -83,11 +86,10 @@ impl AuthService {
         match con.keys(query_user_requests).await {
             Ok(r) => {
                 results = r;
-            },
-            Err(e) => {
+            }
+            Err(_e) => {
                 return 0;
             }
-
         };
 
         return results.len() as u32;

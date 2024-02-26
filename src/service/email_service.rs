@@ -1,7 +1,10 @@
 use crate::config::config_email::ConfigEmail;
-use crate::model::send_message::{MessageAuthor, SendMessage};
-use lettre::{transport::smtp::authentication::Credentials, AsyncSmtpTransport, AsyncTransport, Message, Tokio1Executor, Address};
+use crate::model::send_message::{SendMessage};
 use lettre::message::Mailbox;
+use lettre::{
+    transport::smtp::authentication::Credentials, Address, AsyncSmtpTransport, AsyncTransport,
+    Message, Tokio1Executor,
+};
 
 #[derive(Clone)]
 pub struct EmailService {
@@ -28,12 +31,12 @@ impl EmailService {
 
     pub async fn send_email_smtp(&self, m: SendMessage) -> Result<(), Box<dyn std::error::Error>> {
         let sender = m.author.clone().unwrap();
-        let sender_mailbox = Mailbox::new(
-            Some(sender.name), sender.email.parse::<Address>().unwrap()
-        );
+        let sender_mailbox =
+            Mailbox::new(Some(sender.name), sender.email.parse::<Address>().unwrap());
 
         let recipient_mailbox = Mailbox::new(
-            Some(self.name.clone()), self.email.parse::<Address>().unwrap()
+            Some(self.name.clone()),
+            self.email.parse::<Address>().unwrap(),
         );
 
         let body = self.create_email_body(&m);
@@ -54,12 +57,7 @@ impl EmailService {
 
         format!(
             "From: {} <{}>\nTo: {} <{}>\nSubject: {}\n\n{}",
-            sender.name,
-            sender.email,
-            self.name,
-            self.email,
-            m.subject,
-            m.message
+            sender.name, sender.email, self.name, self.email, m.subject, m.message
         )
     }
 }

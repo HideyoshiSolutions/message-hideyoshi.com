@@ -1,9 +1,8 @@
 use crate::model::generic_response::GenericResponse;
 use crate::model::send_message::{MessageAuthor, SendMessage};
+use crate::service::auth_service::AuthService;
 use crate::service::email_service::EmailService;
 use axum::{http::StatusCode, response::IntoResponse, Extension, Json};
-use crate::service::auth_service::AuthService;
-
 
 pub async fn send_message(
     Extension(auth_service): Extension<AuthService>,
@@ -25,7 +24,7 @@ pub async fn send_message(
     }
 
     match email_service.send_email_smtp(package).await {
-        Ok(_) => {},
+        Ok(_) => {}
         Err(e) => {
             return (
                 StatusCode::INTERNAL_SERVER_ERROR,
@@ -34,7 +33,7 @@ pub async fn send_message(
                     message: e.to_string(),
                 }),
             )
-        },
+        }
     };
 
     auth_service.increase_user_request(&author).await;

@@ -1,11 +1,11 @@
 mod config;
+mod depends;
 mod handler;
 mod middleware;
 mod model;
 mod route;
 mod service;
 mod utils;
-mod depends;
 
 use crate::config::config_server;
 

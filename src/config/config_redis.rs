@@ -19,6 +19,6 @@ pub fn get_config_redis() -> ConfigRedis {
     ConfigRedis {
         redis_url: url,
         redis_port: port.parse::<u16>().unwrap(),
-        redis_password: password
+        redis_password: password,
     }
 }
