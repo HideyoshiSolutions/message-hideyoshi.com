@@ -10,15 +10,15 @@ use axum::{
     routing::{get, post},
     Extension, Router,
 };
+use crate::depends::depends_auth_service::get_depends_auth_service;
+use crate::depends::depends_email_service::get_depends_email_service;
 
 fn configure_message_endpoint(router: Router) -> Router {
     router
         .route("/message", post(send_message))
         .layer(middleware::from_fn(auth_middleware))
-        .layer(Extension(AuthService::new(config_auth::get_config_auth())))
-        .layer(Extension(EmailService::new(
-            config_email::get_config_email(),
-        )))
+        .layer(Extension(get_depends_auth_service()))
+        .layer(Extension(get_depends_email_service()))
 }
 
 fn configure_health_endpoint(router: Router) -> Router {
