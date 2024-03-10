@@ -1,6 +1,6 @@
 use axum::Router;
 use http::Method;
-use tower_http::cors::{AllowOrigin, CorsLayer};
+use tower_http::cors::{AllowHeaders, AllowOrigin, CorsLayer};
 
 pub struct RouterBuilder {
     router: Router,
@@ -18,12 +18,19 @@ impl RouterBuilder {
         return self;
     }
 
-    pub fn add_cors(&mut self, allowed_origins: Option<Vec<String>>) -> &mut Self {
+    pub fn add_cors(&mut self, origins: Option<Vec<String>>) -> &mut Self {
+        let allowed_origins = origins.map_or(AllowOrigin::any(), |origins| {
+            AllowOrigin::list(origins.iter().map(|s| s.parse().unwrap()))
+        });
+        let allowed_headers = [
+            "content-type".parse().unwrap(),
+            "authorization".parse().unwrap(),
+        ];
+
         let cors = CorsLayer::new()
             .allow_methods([Method::GET, Method::POST, Method::OPTIONS])
-            .allow_origin(allowed_origins.map_or(AllowOrigin::any(), |origins| {
-                AllowOrigin::list(origins.iter().map(|s| s.parse().unwrap()))
-            }));
+            .allow_headers(allowed_headers)
+            .allow_origin(allowed_origins);
 
         self.router = self.router.clone().layer(cors);
         return self;

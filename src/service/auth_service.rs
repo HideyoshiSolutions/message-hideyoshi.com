@@ -58,7 +58,7 @@ impl AuthService {
         return user_requests >= self.max_requests;
     }
 
-    pub async fn increase_user_request(&self, user: &MessageAuthor) -> bool {
+    pub async fn increase_user_request_count(&self, user: &MessageAuthor) -> bool {
         let mut con = self.redis.get_async_connection().await.unwrap();
         let current_request_key = format!(
             "user-message:{}:requests:{}",

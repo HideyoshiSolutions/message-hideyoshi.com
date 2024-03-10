@@ -8,10 +8,9 @@ pub async fn send_message(
     Extension(auth_service): Extension<AuthService>,
     Extension(email_service): Extension<EmailService>,
     Extension(author): Extension<MessageAuthor>,
-    Json(payload): Json<SendMessage>,
+    Json(mut payload): Json<SendMessage>,
 ) -> impl IntoResponse {
-    let mut package = payload.clone();
-    package.author = Some(author.clone()).clone();
+    payload.author = Some(author.clone()).clone();
 
     if auth_service.has_user_reached_limit(&author).await {
         return (
@@ -23,7 +22,7 @@ pub async fn send_message(
         );
     }
 
-    match email_service.send_email_smtp(package).await {
+    match email_service.send_email_smtp(payload).await {
         Ok(_) => {}
         Err(e) => {
             return (
@@ -36,7 +35,7 @@ pub async fn send_message(
         }
     };
 
-    auth_service.increase_user_request(&author).await;
+    auth_service.increase_user_request_count(&author).await;
 
     return (
         StatusCode::OK,

@@ -10,7 +10,7 @@ pub struct ConfigRedis {
 
 #[cached]
 pub fn get_config_redis() -> ConfigRedis {
-    dotenv::dotenv().ok();
+    dotenvy::dotenv().ok();
 
     let url = env::var("REDIS_URL").unwrap_or("localhost".to_string());
     let port = env::var("REDIS_PORT").unwrap_or("6379".to_string());
