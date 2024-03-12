@@ -1,5 +1,5 @@
-use chrono::naive::serde::ts_seconds::deserialize as from_ts;
-use chrono::NaiveDateTime;
+use chrono::serde::ts_seconds::deserialize as from_ts;
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
@@ -20,5 +20,5 @@ pub struct SendMessage {
     pub message: String,
 
     #[serde(deserialize_with = "from_ts")]
-    pub timestamp: NaiveDateTime,
+    pub timestamp: DateTime<Utc>,
 }

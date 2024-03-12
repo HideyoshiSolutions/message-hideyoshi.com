@@ -9,7 +9,7 @@ pub struct ConfigLimits {
 
 #[cached]
 pub fn get_config_limits() -> ConfigLimits {
-    dotenv::dotenv().ok();
+    dotenvy::dotenv().ok();
 
     let max_requests = env::var("MAX_REQUESTS")
         .unwrap_or("10".to_string())

@@ -20,5 +20,6 @@ async fn main() {
         tokio::net::TcpListener::bind(format!("{}:{}", server_config.host, server_config.port))
             .await
             .unwrap();
+
     axum::serve(listener, app).await.unwrap();
 }
