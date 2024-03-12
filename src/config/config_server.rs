@@ -1,5 +1,5 @@
-use std::env;
 use cached::proc_macro::cached;
+use std::env;
 
 #[derive(Clone)]
 pub struct ConfigServer {
@@ -12,8 +12,7 @@ pub struct ConfigServer {
 pub fn get_config_server() -> ConfigServer {
     dotenvy::dotenv().ok();
 
-    let host = env::var("HOST")
-        .unwrap_or("localhost".to_string());
+    let host = env::var("HOST").unwrap_or("localhost".to_string());
 
     let port = env::var("PORT")
         .unwrap_or("8500".to_string())

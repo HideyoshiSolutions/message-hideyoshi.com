@@ -1,7 +1,7 @@
 use cached::proc_macro::cached;
 use std::env;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ConfigEmail {
     pub smtp_server: String,
     pub smtp_port: u16,

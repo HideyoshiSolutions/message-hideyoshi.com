@@ -22,26 +22,14 @@ pub async fn send_message(
         );
     }
 
-    match email_service.send_email_smtp(payload).await {
-        Ok(_) => {}
-        Err(e) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(GenericResponse {
-                    status: StatusCode::INTERNAL_SERVER_ERROR.to_string(),
-                    message: e.to_string(),
-                }),
-            )
-        }
-    };
-
+    email_service.send_email(payload).await;
     auth_service.increase_user_request_count(&author).await;
 
-    return (
+    (
         StatusCode::OK,
         Json(GenericResponse {
             status: StatusCode::OK.to_string(),
             message: "Message sent".to_string(),
         }),
-    );
+    )
 }

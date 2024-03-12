@@ -22,3 +22,6 @@ lettre = { version = "0.11.4", default-features = false, features = ["smtp-trans
 redis = { version = "0.24.0", features = ["aio", "tokio-comp"] }
 tower-http = { version = "0.5.2", features = ["cors"] }
 dotenvy = "0.15.7"
+futures = "0.3.30"
+deadqueue = "0.2.4"
+redis-work-queue = "0.1.6"
