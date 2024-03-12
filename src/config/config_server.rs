@@ -1,4 +1,5 @@
 use cached::proc_macro::cached;
+use std::env;
 
 #[derive(Clone)]
 pub struct ConfigServer {
@@ -9,18 +10,18 @@ pub struct ConfigServer {
 
 #[cached]
 pub fn get_config_server() -> ConfigServer {
-    dotenv::dotenv().ok();
+    dotenvy::dotenv().ok();
 
-    let host = option_env!("HOST").unwrap_or("localhost").to_string();
+    let host = env::var("HOST").unwrap_or("localhost".to_string());
 
-    let port = option_env!("PORT")
-        .unwrap_or("8500")
+    let port = env::var("PORT")
+        .unwrap_or("8500".to_string())
         .parse::<u16>()
         .unwrap();
 
-    let allowed_origins = match option_env!("ALLOWED_ORIGINS") {
-        Some(origins) => Some(origins.split(",").map(|s| s.to_string()).collect()),
-        None => None,
+    let allowed_origins = match env::var("ALLOWED_ORIGINS") {
+        Ok(origins) => Some(origins.split(',').map(|s| s.to_string()).collect()),
+        Err(_) => None,
     };
 
     ConfigServer {

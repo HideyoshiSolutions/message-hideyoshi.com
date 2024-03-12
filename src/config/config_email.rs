@@ -1,7 +1,7 @@
 use cached::proc_macro::cached;
 use std::env;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ConfigEmail {
     pub smtp_server: String,
     pub smtp_port: u16,
@@ -13,7 +13,7 @@ pub struct ConfigEmail {
 
 #[cached]
 pub fn get_config_email() -> ConfigEmail {
-    dotenv::dotenv().ok();
+    dotenvy::dotenv().ok();
 
     let server = env::var("SMTP_SERVER").expect("SMTP_SERVER must be set");
     let port = env::var("SMTP_PORT").expect("SMTP_PORT must be set");
