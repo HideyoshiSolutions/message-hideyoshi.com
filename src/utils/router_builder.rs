@@ -1,6 +1,6 @@
 use axum::Router;
 use http::Method;
-use tower_http::cors::{AllowHeaders, AllowOrigin, CorsLayer};
+use tower_http::cors::{AllowOrigin, CorsLayer};
 
 pub struct RouterBuilder {
     router: Router,
