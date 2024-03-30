@@ -1,71 +1,58 @@
-use std::sync::Arc;
-use crate::config::config_email::ConfigEmail;
-use crate::model::send_message::SendMessage;
 use lettre::message::Mailbox;
 use lettre::{
     transport::smtp::authentication::Credentials, Address, AsyncSmtpTransport, AsyncTransport,
     Message, Tokio1Executor,
 };
+use redis_queue_rs::async_redis_queue::AsyncRedisQueue;
 
-
-type MessageQueue = deadqueue::unlimited::Queue<SendMessage>;
-
+use crate::config::config_email::ConfigEmail;
+use crate::model::send_message::SendMessage;
 
 #[derive(Clone)]
 pub struct EmailService {
     name: String,
     email: String,
     mailer: AsyncSmtpTransport<Tokio1Executor>,
-
-    message_queue: Arc<MessageQueue>
+    redis_client: redis::Client,
 }
 
 impl EmailService {
-    pub fn new(config_email: ConfigEmail) -> Self {
-        let email_service = EmailService {
-            name: config_email.smtp_name.clone(),
-            email: config_email.smtp_email.clone(),
-            mailer: AsyncSmtpTransport::<Tokio1Executor>::starttls_relay(&config_email.smtp_server)
+    pub fn new(config_email: ConfigEmail, redis_client: redis::Client) -> EmailService {
+        let mailer =
+            AsyncSmtpTransport::<Tokio1Executor>::starttls_relay(&config_email.smtp_server)
                 .unwrap()
                 .credentials(Credentials::new(
                     config_email.smtp_username,
                     config_email.smtp_password,
                 ))
                 .port(config_email.smtp_port)
-                .build(),
-            message_queue: Arc::new(MessageQueue::new())
-        };
-        email_service.bind_executer();
+                .build();
 
-        email_service
+        EmailService {
+            mailer,
+            redis_client,
+            name: config_email.smtp_name.clone(),
+            email: config_email.smtp_email.clone(),
+        }
     }
 
-    pub async fn send_email (
-        &self,
-        m: SendMessage
-    ) {
-        self.message_queue.push(m);
+    pub async fn send_email(&mut self, m: SendMessage) {
+        self.get_message_queue().await.push(m).await;
     }
 
-    fn bind_executer(&self) {
-        let local_self = self.clone();
-        let message_queue = self.message_queue.clone();
-        tokio::spawn(async move {
-            loop {
-                let message = message_queue.pop().await;
-                local_self.create_send_message_task(message).await;
-            }
-        });
-    }
+    pub(crate) async fn create_send_message_task(&mut self) {
+        let message = self.get_message_queue().await.pop().await;
+        if message.is_none() {
+            return;
+        }
 
-    async fn create_send_message_task(&self, m: SendMessage) {
-        let message = self.message_queue.pop().await;
-        match self.send_message_smtp(message.clone()).await {
+        let message = message.unwrap();
+        let message_author = message.author.clone().unwrap();
+        match self.send_message_smtp(message).await {
             Ok(_) => {
                 println!(
                     "Email sent successfully from {} to {}",
-                    message.author.unwrap().email,
-                    self.email
+                    message_author.email, self.email
                 );
             }
             Err(e) => {
@@ -104,5 +91,10 @@ impl EmailService {
             "From: {} <{}>\nTo: {} <{}>\nSubject: {}\n\n{}",
             sender.name, sender.email, self.name, self.email, m.subject, m.message
         )
+    }
+
+    pub async fn get_message_queue(&self) -> AsyncRedisQueue<SendMessage> {
+        let redis_client = self.redis_client.clone();
+        AsyncRedisQueue::new("message-hideyoshi.com".to_string(), redis_client).await
     }
 }
