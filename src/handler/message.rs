@@ -6,7 +6,7 @@ use axum::{http::StatusCode, response::IntoResponse, Extension, Json};
 
 pub async fn send_message(
     Extension(auth_service): Extension<AuthService>,
-    Extension(email_service): Extension<EmailService>,
+    Extension(mut email_service): Extension<EmailService>,
     Extension(author): Extension<MessageAuthor>,
     Json(mut payload): Json<SendMessage>,
 ) -> impl IntoResponse {
